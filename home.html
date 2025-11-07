@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Spend Smart - Expense Dashboard</title>
+
+<!-- Bootstrap + Google Font -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+body {
+  font-family: 'Poppins', sans-serif;
+  background: linear-gradient(to right, #e3f2fd, #f8fbff);
+  margin: 0;
+  padding: 0;
+  color: #1a237e;
+}
+
+.container {
+  margin-top: 30px;
+}
+
+/* LOGIN SECTION */
+#auth-section {
+  background: white;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+  border-radius: 15px;
+  padding: 30px;
+  max-width: 500px;
+  margin: auto;
+  text-align: center;
+}
+
+#dashboard {
+  display: none;
+}
+
+/* PROFILE HEADER */
+.profile-header {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  background: linear-gradient(90deg, #0d6efd, #3b8eff);
+  padding: 20px;
+  border-radius: 15px;
+  color: white;
+  box-shadow: 0 4px 15px rgba(13, 110, 253, 0.2);
+}
+
+.profile-header img {
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  border: 3px solid white;
+}
+
+.profile-details h4 {
+  margin: 0;
+  font-weight: 600;
+}
+
+/* SECTIONS */
+.budget-calculator, .charts, .tips {
+  background: white;
+  margin-top: 20px;
+  padding: 20px;
+  border-radius: 15px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+}
+
+/* CHART SECTION */
+.chart-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 20px;
+  margin-top: 15px;
+}
+
+canvas {
+  width: 300px !important;
+  height: 300px !important;
+}
+
+/* BUTTONS */
+.btn-custom {
+  background: linear-gradient(90deg, #0d6efd, #007bff);
+  color: white;
+  border-radius: 10px;
+}
+
+.btn-custom:hover {
+  background: linear-gradient(90deg, #0056d2, #007bff);
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+
+  <!-- LOGIN -->
+  <div id="auth-section">
+    <h2 class="fw-bold text-primary">Spend Smart</h2>
+    <p>Track your expenses, set budgets, and save smartly!</p>
+    <input type="text" id="username" class="form-control mb-3" placeholder="Enter username">
+    <button class="btn btn-custom w-100" onclick="login()">Login</button>
+  </div>
+
+  <!-- DASHBOARD -->
+  <div id="dashboard">
+
+    <!-- PROFILE -->
+    <div class="profile-header mt-4">
+      <img src="https://via.placeholder.com/70" alt="Profile Image">
+      <div class="profile-details">
+        <h4 id="user-name">User Name</h4>
+        <p class="mb-0">Welcome back! Here’s your financial summary.</p>
+      </div>
+    </div>
+
+    <!-- BUDGET CALCULATOR -->
+    <div class="budget-calculator">
+      <h4>💰 Budget Calculator</h4>
+      <label>Monthly income:</label>
+      <input type="number" id="salary" class="form-control mb-3" placeholder="Enter income">
+
+      <h6>Expenses (per month):</h6>
+      <div class="row">
+        <div class="col-md-6 mb-2"><input type="number" id="rent" class="form-control" placeholder="Rent"></div>
+        <div class="col-md-6 mb-2"><input type="number" id="food" class="form-control" placeholder="Food"></div>
+        <div class="col-md-6 mb-2"><input type="number" id="travel" class="form-control" placeholder="Travel"></div>
+        <div class="col-md-6 mb-2"><input type="number" id="books" class="form-control" placeholder="Books"></div>
+        <div class="col-md-6 mb-2"><input type="number" id="stationery" class="form-control" placeholder="Stationery"></div>
+        <div class="col-md-6 mb-2"><input type="number" id="college" class="form-control" placeholder="College Work"></div>
+      </div>
+      <button class="btn btn-custom mt-3" onclick="calculateBudget()">Calculate Budget</button>
+    </div>
+
+    <!-- CHARTS -->
+    <div class="charts">
+      <h4>📊 Expense Overview</h4>
+      <div class="chart-container">
+        <canvas id="circularChart"></canvas>
+        <canvas id="linearChart"></canvas>
+      </div>
+    </div>
+
+    <!-- SMART TIPS -->
+    <div class="tips">
+      <h4>💡 Smart Saving Tips</h4>
+      <p id="tips-content">Enter your expenses to get personalized tips.</p>
+    </div>
+
+  </div>
+</div>
+
+<script>
+function login() {
+  const username = document.getElementById('username').value;
+  if(username.trim() === "") {
+    alert("Please enter your username");
+    return;
+  }
+  document.getElementById('auth-section').style.display = 'none';
+  document.getElementById('dashboard').style.display = 'block';
+  document.getElementById('user-name').innerText = username;
+}
+
+function calculateBudget() {
+  let salary = Number(document.getElementById('salary').value);
+  let rent = Number(document.getElementById('rent').value);
+  let food = Number(document.getElementById('food').value);
+  let travel = Number(document.getElementById('travel').value);
+  let books = Number(document.getElementById('books').value);
+  let stationery = Number(document.getElementById('stationery').value);
+  let college = Number(document.getElementById('college').value);
+
+  if (salary <= 0) {
+    alert("Please enter a valid monthly income!");
+    return;
+  }
+
+  let total = rent + food + travel + books + stationery + college;
+  let savings = salary - total;
+  let percentUsed = ((total / salary) * 100).toFixed(1);
+
+  let tips = "";
+  if(percentUsed > 80) tips = "⚠ You're spending too much! Try reducing travel or food costs.";
+  else if(percentUsed > 50) tips = "🙂 Good job! Try to save a bit more next month.";
+  else tips = "🎯 Excellent! You’re managing your expenses very well.";
+
+  document.getElementById('tips-content').innerText =
+    `Total Expenses: ₹${total} | Savings: ₹${savings} | Used: ${percentUsed}% — ${tips}`;
+
+  // Circular Chart
+  const circularCtx = document.getElementById('circularChart').getContext('2d');
+  if (window.circularChartInstance) window.circularChartInstance.destroy();
+  window.circularChartInstance = new Chart(circularCtx, {
+    type: 'doughnut',
+    data: {
+      labels: ['Expenses', 'Savings'],
+      datasets: [{
+        data: [total, savings],
+        backgroundColor: ['#1565c0', '#90caf9'],
+        borderWidth: 2
+      }]
+    },
+    options: {
+      plugins: { legend: { position: 'bottom' } }
+    }
+  });
+
+  // Linear Chart
+  const linearCtx = document.getElementById('linearChart').getContext('2d');
+  if (window.linearChartInstance) window.linearChartInstance.destroy();
+  window.linearChartInstance = new Chart(linearCtx, {
+    type: 'bar',
+    data: {
+      labels: ['Rent','Food','Travel','Books','Stationery','College Work'],
+      datasets: [{
+        label: 'Expenses (₹)',
+        data: [rent, food, travel, books, stationery, college],
+        backgroundColor: [
+          '#1565c0','#1976d2','#1e88e5','#2196f3','#42a5f5','#64b5f6'
+        ]
+      }]
+    },
+    options: {
+      plugins: { legend: { display: false } },
+      scales: { y: { beginAtZero: true } }
+    }
+  });
+}
+</script>
+</body>
+</html>
